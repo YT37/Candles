@@ -1,0 +1,21 @@
+# Fictional friend-group chat, replayed by demo/seed.py as "Name: text"
+Priya: who's going to the football game saturday
+Jordan: me if someone drives
+Aman: my AirPods are literally dying, the left one cuts out every 5 minutes
+Maya: lol same energy as my laptop battery
+Aman: Hayden at 2am is so dark, I'd kill for a good desk lamp
+Jordan: anyone have notes from CSE 230 tuesday
+Priya: I do, sending
+Aman: obsessed with the matcha at the MU, I've had 3 this week
+Maya: that's a problem
+Aman: someone stole my Hydro Flask at the SDFC again 😭
+Jordan: brutal
+Maya: dinner at the dining hall at 6?
+Priya: yes
+Aman: lowkey want to get into film photography
+Jordan: HAPPY BIRTHDAY PRIYA 🎉🎉
+Maya: happy birthday priya!! 🎂
+Aman: hbd Priya, have the best day
+Jordan: Priya birthday dinner was elite
+Maya: midterms are cooked
+Aman: my phone case is falling apart lol

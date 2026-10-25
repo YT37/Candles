@@ -1,0 +1,11 @@
+{
+  "campus": "Arizona State University, Tempe",
+  "extra_lead_days_for_breaks": 7,
+  "breaks": [
+    {"name": "finals week", "start": "12-05", "end": "12-12"},
+    {"name": "winter break", "start": "12-13", "end": "01-11"},
+    {"name": "spring break", "start": "03-08", "end": "03-15"},
+    {"name": "summer break", "start": "05-09", "end": "08-20"}
+  ],
+  "spots": []
+}
