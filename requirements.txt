@@ -1,5 +1,5 @@
 anthropic==2.3.0
 discord.py==2.7.1
 python-dotenv==1.2.4
-pillow==12.1.0
-pytest==8.4.2
+pillow==13.0.0
+pytest==9.1.1
