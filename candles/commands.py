@@ -6,6 +6,7 @@ from datetime import date, datetime, timezone
 import discord
 from discord import app_commands
 
+from . import montage as builder
 from .texts import CONSENT, money
 from .views import BirthdayConfirm, PaidButton, paid_line, single
 
@@ -201,8 +202,6 @@ def register(bot):
     @tree.command(description="Preview the birthday video from the clips so far")
     @app_commands.guild_only()
     async def montage(interaction: discord.Interaction):
-        from . import montage as builder
-        from .bot import DATA
         party = await party_here(interaction)
         if not party:
             return
@@ -210,7 +209,7 @@ def register(bot):
         if not clips:
             return await ephemeral(interaction, "No clips yet. Drop a video or voice note here.")
         await interaction.response.defer(thinking=True)
-        out = DATA / f"preview-{party['id']}.mp4"
+        out = bot.data / f"preview-{party['id']}.mp4"
         try:
             await builder.build([dict(c) for c in clips], bot.name(interaction.guild, party["user_id"]), out, bot.upload_mb)
             await interaction.followup.send(f"🎬 Preview with {len(clips)} {'clip' if len(clips) == 1 else 'clips'}:", file=discord.File(out, "preview.mp4"))

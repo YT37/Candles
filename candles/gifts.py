@@ -96,7 +96,6 @@ def offer_price(node) -> float | None:
 
 
 def page_price(html: str) -> float | None:
-    """The product's own price from schema.org data, or None when the page doesn't say."""
     for block in re.findall(r'<script[^>]+application/ld\+json[^>]*>(.*?)</script>', html, re.S | re.I):
         try:
             data = json.loads(block.strip())
@@ -122,7 +121,6 @@ def fetch(url: str) -> tuple[int, str]:
 
 
 async def check_link(url: str) -> tuple[str, float | None]:
-    """Returns 'ok', 'blocked' (store refuses bots, link may still work) or 'dead', plus any price on the page."""
     status, html = await asyncio.to_thread(fetch, url)
     if 200 <= status < 400:
         return "ok", page_price(html)

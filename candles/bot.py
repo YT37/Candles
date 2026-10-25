@@ -40,6 +40,7 @@ class CandlesBot(discord.Client):
         intents.members = True
         super().__init__(intents=intents)
         self.tree = discord.app_commands.CommandTree(self)
+        self.data = DATA
         DATA.mkdir(exist_ok=True)
         self.store = Store(os.getenv("DB_PATH") or str(DATA / "candles.db"))
         self.finder = GiftFinder(os.getenv("GIFT_MODEL") or "claude-opus-5-5", os.getenv("PARSE_MODEL") or "claude-haiku-5-5",
@@ -88,7 +89,6 @@ class CandlesBot(discord.Client):
             self.store.set_guild(guild.id, home_channel_id=channel.id)
             await channel.send(CONSENT)
 
-    # Party plumbing
 
     async def target(self, party):
         channel = self.get_channel(party["thread_id"])
@@ -126,7 +126,6 @@ class CandlesBot(discord.Client):
             except discord.HTTPException as e:
                 log.warning("Budget refresh failed: %s", e)
 
-    # The daily check
 
     async def daily_loop(self):
         await self.wait_until_ready()
@@ -262,7 +261,6 @@ class CandlesBot(discord.Client):
                 text += f"\nOfficers: the treat budget this month is {money(g['club_budget'])}."
             await home.send(text)
 
-    # Gifts
 
     def receipts(self, source: str, wishes, snippets) -> str:
         if (m := re.fullmatch(r"W(\d+)", source.strip())) and int(m[1]) <= len(wishes):
@@ -325,7 +323,6 @@ class CandlesBot(discord.Client):
         when = f" Order by {weekday(deadline, today)}." if deadline and deadline >= today else ""
         await self.send(party, f"📌 **Group pick: {data['title']}**.{when} Whoever buys it: `/ordered`, then `/bought <amount>`.")
 
-    # Paying the buyer back
 
     async def dm(self, party, user_id: int, *args, **kwargs):
         try:
@@ -358,7 +355,6 @@ class CandlesBot(discord.Client):
             self.store.set_share(share["purchase_id"], share["user_id"], nudges=share["nudges"] + 1,
                                  last_nudge=datetime.now(timezone.utc).isoformat(timespec="seconds"))
 
-    # Messages: DM wishes and montage clips
 
     async def on_message(self, message: discord.Message):
         if message.author.id == self.user.id:
