@@ -50,7 +50,7 @@ All demo content is fictional. Set `DEMO_WEBHOOK_URL` and `DEMO_PEOPLE` in `.env
 .venv/bin/python demo/seed.py clips --thread THREAD_ID
 ```
 
-Use `/debug` with a date to jump ahead to the thread opening or the birthday itself.
+Use `/debug` with a date to jump ahead to the thread opening or the birthday itself, `reset` for the real date, or `fresh` to clear every party and rehearse again.
 
 ## Tests
 

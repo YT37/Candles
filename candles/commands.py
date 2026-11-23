@@ -239,17 +239,23 @@ def register(bot):
         await interaction.response.send_message("🧹 Deleted every birthday, plan, budget and payment record for this server.")
 
     @tree.command(description="Admin testing: pretend today is another date")
-    @app_commands.describe(day="YYYY-MM-DD, or 'reset' for the real date")
+    @app_commands.describe(day="YYYY-MM-DD, 'reset' for the real date, or 'fresh' to clear all parties and start over")
     @app_commands.guild_only()
     async def debug(interaction: discord.Interaction, day: str):
         if not is_admin(interaction):
             return await ephemeral(interaction, "Admins only.")
-        if day.strip().lower() == "reset":
+        day = day.strip().lower()
+        if day == "fresh":
+            bot.store.run("DELETE FROM parties WHERE guild_id = ?", interaction.guild_id)
+            return await ephemeral(interaction, "🧽 Cleared every party. Old secret threads stay in Discord, so delete them by hand. Jump to a date to open new ones.")
+        if day == "reset":
             bot.store.set_guild(interaction.guild_id, fake_today=None)
         else:
             try:
-                bot.store.set_guild(interaction.guild_id, fake_today=date.fromisoformat(day.strip()).isoformat())
+                bot.store.set_guild(interaction.guild_id, fake_today=date.fromisoformat(day).isoformat())
             except ValueError:
-                return await ephemeral(interaction, "Use YYYY-MM-DD or reset.")
-        await ephemeral(interaction, f"🕰️ Today is now {bot.today(interaction.guild_id):%a %b %-d, %Y} for this server. Running the daily check.")
-        await bot.tick(interaction.guild)
+                return await ephemeral(interaction, "Use YYYY-MM-DD, reset or fresh.")
+        await interaction.response.defer(ephemeral=True, thinking=True)
+        notes = await bot.tick(interaction.guild)
+        text = f"🕰️ Today is now {bot.today(interaction.guild_id):%a %b %-d, %Y} for this server."
+        await interaction.followup.send("\n".join([text, *(f"• {n}" for n in notes)]) if notes else text + " Nothing new to open.", ephemeral=True)

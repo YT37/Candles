@@ -139,30 +139,37 @@ class CandlesBot(discord.Client):
                         log.exception("Tick failed for %s", guild.id)
             await asyncio.sleep(self.tick_minutes * 60)
 
-    async def tick(self, guild: discord.Guild):
+    async def tick(self, guild: discord.Guild) -> list[str]:
         g = self.store.guild(guild.id)
         today = self.today(guild.id)
         if g["mode"] == "club":
-            return await self.shoutout(guild, g, today)
+            await self.shoutout(guild, g, today)
+            return []
+        if not guild.get_channel(g["home_channel_id"] or 0):
+            log.warning("No main channel for %s", guild.name)
+            return ["No main channel yet (or it was deleted). Run `/setup` in your main chat."]
+        notes = []
         for person in self.store.birthdays(guild.id):
             bday = next_birthday(person["month"], person["day"], today)
             if 0 < (bday - today).days <= lead_days(g["lead_days"], bday) and not self.store.party_for(guild.id, person["user_id"], bday.isoformat()):
-                await self.open_party(guild, person, bday, today)
+                if note := await self.open_party(guild, person, bday, today):
+                    notes.append(note)
         for party in self.store.parties(guild.id):
             await self.chores(guild, party, today)
         await self.nudge_payers()
+        return notes
 
-    async def open_party(self, guild: discord.Guild, person, bday: date, today: date):
+    async def open_party(self, guild: discord.Guild, person, bday: date, today: date) -> str | None:
         g = self.store.guild(guild.id)
         home = guild.get_channel(g["home_channel_id"] or 0)
         member = guild.get_member(person["user_id"])
-        if not home or not member:
-            return
+        if not member:
+            return None
         name = member.display_name
         perms = home.permissions_for(member)
         if perms.administrator:
             log.warning("%s is an admin of %s, so nothing can be hidden from them. Skipping their secret thread.", name, guild.name)
-            return
+            return f"Skipped {name}'s birthday: server admins can see every private thread, so I can't keep it secret from them."
         party_id = self.store.create_party(guild.id, member.id, bday.isoformat())
         friends = [m for m in guild.members if not m.bot and m.id != member.id]
         target = None
@@ -185,7 +192,7 @@ class CandlesBot(discord.Client):
         if await can_see(member, target):
             log.error("%s can see the secret space in %s. Deleting it.", name, guild.name)
             await target.delete()
-            return
+            return f"{name} could see the secret space, so I deleted it."
         days = (bday - today).days
         intro = f"🤫 **{name}'s birthday is {weekday(bday, today)}** ({bday:%b %-d}). {days} {'day' if days == 1 else 'days'} to not mess this up."
         if why := campus_break(bday):
@@ -201,6 +208,7 @@ class CandlesBot(discord.Client):
         await self.send(party, **self.plan_payload(party_id))
         await self.send(party, f"🎬 Drop a clip (15 seconds max) or a voice note here by {weekday(bday - timedelta(days=1), today)}. "
                                f"I'll stitch them into one video for {name}'s day.")
+        return f"Opened a secret thread for {name}'s birthday ({bday:%b %-d})."
 
     async def chores(self, guild: discord.Guild, party, today: date):
         bday = date.fromisoformat(party["date"])
