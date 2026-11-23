@@ -59,3 +59,7 @@ Use `/debug` with a date to jump ahead to the thread opening or the birthday its
 ```
 
 Built for Track 3 of the [Cubbie Hackathon](https://hackathon.cubbie.ai).
+
+## License
+
+[MIT](LICENSE)
